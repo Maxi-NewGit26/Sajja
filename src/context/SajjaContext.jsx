@@ -9,46 +9,34 @@ const SajjaContext = createContext();
 export const SajjaProvider = ({ children }) => {
   const { user } = useAuth();
   
-  // State initialization with localStorage fallback
-  const [vows, setVows] = useState(() => {
-    const saved = localStorage.getItem('sajja_vows');
-    return saved ? JSON.parse(saved) : initialVows;
-  });
-
-  const [checkIns, setCheckIns] = useState(() => {
-    const saved = localStorage.getItem('sajja_checkins');
-    return saved ? JSON.parse(saved) : initialCheckIns;
-  });
-
+  const [vows, setVows] = useState([]);
+  const [checkIns, setCheckIns] = useState([]);
   const [loading, setLoading] = useState(false);
-
-  // Sync to localStorage
-  useEffect(() => {
-    localStorage.setItem('sajja_vows', JSON.stringify(vows));
-  }, [vows]);
-
-  useEffect(() => {
-    localStorage.setItem('sajja_checkins', JSON.stringify(checkIns));
-  }, [checkIns]);
 
   // Load from Supabase if configured
   useEffect(() => {
-    if (isSupabaseConfigured() && user && user.id !== 'demo-user-123') {
+    if (isSupabaseConfigured() && user) {
       fetchSupabaseData();
+    } else {
+      setVows([]);
+      setCheckIns([]);
     }
   }, [user]);
 
   const fetchSupabaseData = async () => {
     try {
       setLoading(true);
+      
       // Fetch vows
       const { data: vowData } = await supabase
         .from('vows')
         .select(`*, milestones(*), witnesses(*)`)
         .eq('user_id', user.id);
 
-      if (vowData && vowData.length > 0) {
+      if (vowData) {
         setVows(vowData);
+      } else {
+        setVows([]);
       }
 
       // Fetch check-ins
@@ -59,9 +47,13 @@ export const SajjaProvider = ({ children }) => {
 
       if (checkInData) {
         setCheckIns(checkInData);
+      } else {
+        setCheckIns([]);
       }
     } catch (err) {
       console.error('Supabase fetch error:', err);
+      setVows([]);
+      setCheckIns([]);
     } finally {
       setLoading(false);
     }
@@ -111,7 +103,7 @@ export const SajjaProvider = ({ children }) => {
 
     setVows((prev) => [newVow, ...prev]);
 
-    if (isSupabaseConfigured() && user && user.id !== 'demo-user-123') {
+    if (isSupabaseConfigured() && user) {
       try {
         await supabase.from('vows').insert([{
           id: vowId,
@@ -147,7 +139,7 @@ export const SajjaProvider = ({ children }) => {
     const newCheckIn = {
       id: existingIndex >= 0 ? checkIns[existingIndex].id : `c-${Date.now()}`,
       vow_id: vowId,
-      user_id: user?.id || 'user-demo',
+      user_id: user?.id,
       check_date: dateStr,
       status: status, // 'completed', 'adjusted', 'missed'
       note: note,
@@ -162,7 +154,7 @@ export const SajjaProvider = ({ children }) => {
 
     setCheckIns(updatedCheckIns);
 
-    if (isSupabaseConfigured() && user && user.id !== 'demo-user-123') {
+    if (isSupabaseConfigured() && user) {
       try {
         await supabase.from('check_ins').upsert(newCheckIn, { onConflict: 'vow_id,check_date' });
       } catch (e) {

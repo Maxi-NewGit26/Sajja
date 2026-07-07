@@ -141,17 +141,8 @@ export const AuthPage = ({ onContinueAsGuest, onOpenSupabaseConfig }) => {
           </button>
         </div>
 
-        {/* Continue as Guest Demo */}
-        <div className="mt-6 pt-4 border-t border-gold-600/20 text-center space-y-2">
-          <button
-            type="button"
-            onClick={onContinueAsGuest}
-            className="w-full py-2.5 px-3 rounded-xl bg-parchment-200/80 hover:bg-parchment-300 text-ink text-xs font-bold font-serif-thai flex items-center justify-center gap-1.5"
-          >
-            <span>ทดลองใช้งานทันทีในโหมด Demo</span>
-            <ArrowRight className="w-3.5 h-3.5" />
-          </button>
-
+        {/* Database Config only */}
+        <div className="mt-6 pt-4 border-t border-gold-600/20 text-center">
           <button
             type="button"
             onClick={onOpenSupabaseConfig}

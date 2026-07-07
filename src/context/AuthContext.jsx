@@ -6,7 +6,7 @@ const AuthContext = createContext();
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [isDemoMode, setIsDemoMode] = useState(!isSupabaseConfigured());
+  const [isDemoMode, setIsDemoMode] = useState(false);
 
   useEffect(() => {
     if (isSupabaseConfigured() && supabase) {
@@ -14,11 +14,8 @@ export const AuthProvider = ({ children }) => {
       supabase.auth.getSession().then(({ data: { session } }) => {
         if (session?.user) {
           setUser(session.user);
-          setIsDemoMode(false);
         } else {
-          // Default guest user for seamless exploration
-          setUser(getDemoUser());
-          setIsDemoMode(true);
+          setUser(null);
         }
         setLoading(false);
       });
@@ -27,39 +24,22 @@ export const AuthProvider = ({ children }) => {
       const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
         if (session?.user) {
           setUser(session.user);
-          setIsDemoMode(false);
         } else {
-          setUser(getDemoUser());
-          setIsDemoMode(true);
+          setUser(null);
         }
         setLoading(false);
       });
 
       return () => subscription.unsubscribe();
     } else {
-      // Offline / Demo Mode
-      setUser(getDemoUser());
-      setIsDemoMode(true);
+      setUser(null);
       setLoading(false);
     }
   }, []);
 
-  function getDemoUser() {
-    return {
-      id: 'demo-user-123',
-      email: 'ผู้ปฏิบัติตน (Demo)',
-      user_metadata: {
-        full_name: 'ผู้บำเพ็ญสัจจะ',
-        avatar_url: ''
-      }
-    };
-  }
-
   const signInWithEmail = async (email, password) => {
     if (!isSupabaseConfigured()) {
-      setUser({ id: 'demo-user-123', email, user_metadata: { full_name: email.split('@')[0] } });
-      setIsDemoMode(true);
-      return { data: { user }, error: null };
+      return { data: null, error: { message: 'กรุณาเชื่อมต่อ Supabase ก่อนลงชื่อเข้าใช้งาน' } };
     }
     const { data, error } = await supabase.auth.signInWithPassword({ email, password });
     return { data, error };
@@ -67,9 +47,7 @@ export const AuthProvider = ({ children }) => {
 
   const signUpWithEmail = async (email, password, displayName) => {
     if (!isSupabaseConfigured()) {
-      setUser({ id: 'demo-user-123', email, user_metadata: { full_name: displayName || email } });
-      setIsDemoMode(true);
-      return { data: { user }, error: null };
+      return { data: null, error: { message: 'กรุณาเชื่อมต่อ Supabase ก่อนลงชื่อเข้าใช้งาน' } };
     }
     const { data, error } = await supabase.auth.signUp({
       email,
@@ -99,8 +77,7 @@ export const AuthProvider = ({ children }) => {
     if (isSupabaseConfigured() && supabase) {
       await supabase.auth.signOut();
     }
-    setUser(getDemoUser());
-    setIsDemoMode(true);
+    setUser(null);
   };
 
   return (

@@ -13,7 +13,7 @@ import { AuthPage } from './pages/AuthPage';
 import { useSajja } from './context/SajjaContext';
 
 function MainApp() {
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const { vows } = useSajja();
   const [activeTab, setActiveTab] = useState('dashboard');
   const [selectedVow, setSelectedVow] = useState(null);
@@ -49,6 +49,29 @@ function MainApp() {
     setActiveTab(tab);
   };
 
+  if (authLoading) {
+    return (
+      <div className="min-h-screen bg-parchment-100 flex flex-col items-center justify-center font-serif-thai text-crimson-800 text-lg font-bold gap-3">
+        <div className="w-12 h-12 rounded-full bg-crimson-700 border-2 border-gold-400 flex items-center justify-center text-gold-300 font-extrabold text-xl animate-pulse shadow-seal">
+          ส
+        </div>
+        <span>กำลังเชื่อมเข้าสู่สัจจะบารมี...</span>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return (
+      <div className="min-h-screen bg-parchment-100 pb-20 sm:pb-0 flex flex-col justify-between selection:bg-crimson-700 selection:text-parchment-100">
+        <AuthPage onOpenSupabaseConfig={() => setShowSupabaseModal(true)} />
+        <SupabaseConfigModal
+          isOpen={showSupabaseModal}
+          onClose={() => setShowSupabaseModal(false)}
+        />
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen flex flex-col justify-between bg-parchment-100 selection:bg-crimson-700 selection:text-parchment-100 pb-20 sm:pb-0">
       <div>
@@ -82,13 +105,6 @@ function MainApp() {
 
           {activeTab === 'profile' && (
             <ProfilePage
-              onOpenSupabaseConfig={() => setShowSupabaseModal(true)}
-            />
-          )}
-
-          {activeTab === 'auth' && (
-            <AuthPage
-              onContinueAsGuest={() => setActiveTab('dashboard')}
               onOpenSupabaseConfig={() => setShowSupabaseModal(true)}
             />
           )}

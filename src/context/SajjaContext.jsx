@@ -26,13 +26,48 @@ export const SajjaProvider = ({ children }) => {
   const fetchSupabaseData = async () => {
     try {
       setLoading(true);
+
+      // Ensure profile exists in public.profiles to satisfy foreign key constraints
+      const { data: profile, error: profileErr } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', user.id)
+        .maybeSingle();
+
+      if (!profile) {
+        console.log('Profile record missing in public.profiles. Creating on the fly...');
+        const { error: insertErr } = await supabase.from('profiles').insert([{
+          id: user.id,
+          email: user.email,
+          display_name: user.user_metadata?.full_name || user.email.split('@')[0],
+          avatar_url: user.user_metadata?.avatar_url || '',
+          sajja_score: 100,
+          total_vows_sealed: 0,
+          current_streak: 0
+        }]);
+        if (insertErr) {
+          console.error('Failed to create self-healing profile:', insertErr);
+        } else {
+          // Also give starting seal
+          await supabase.from('seals').insert([{
+            user_id: user.id,
+            seal_type: 'bronze',
+            title: 'ตราสัจจะแรกเริ่ม',
+            description: 'มอบให้แก่ผู้เปิดทางเข้าร่วมสัจจะบารมีเป็นครั้งแรก',
+            icon_name: 'ShieldCheck'
+          }]);
+        }
+      }
       
       // Fetch vows
-      const { data: vowData } = await supabase
+      const { data: vowData, error: vowErr } = await supabase
         .from('vows')
         .select(`*, milestones(*), witnesses(*)`)
         .eq('user_id', user.id);
 
+      if (vowErr) {
+        console.error('Failed to fetch vows:', vowErr);
+      }
       if (vowData) {
         setVows(vowData);
       } else {
@@ -40,11 +75,14 @@ export const SajjaProvider = ({ children }) => {
       }
 
       // Fetch check-ins
-      const { data: checkInData } = await supabase
+      const { data: checkInData, error: checkInErr } = await supabase
         .from('check_ins')
         .select('*')
         .eq('user_id', user.id);
 
+      if (checkInErr) {
+        console.error('Failed to fetch check-ins:', checkInErr);
+      }
       if (checkInData) {
         setCheckIns(checkInData);
       } else {
@@ -105,7 +143,7 @@ export const SajjaProvider = ({ children }) => {
 
     if (isSupabaseConfigured() && user) {
       try {
-        await supabase.from('vows').insert([{
+        const { error: vowInsertErr } = await supabase.from('vows').insert([{
           id: vowId,
           user_id: user.id,
           title: newVow.title,
@@ -118,11 +156,17 @@ export const SajjaProvider = ({ children }) => {
           seal_color: newVow.seal_color
         }]);
 
+        if (vowInsertErr) {
+          console.error('Supabase Vow insert error:', vowInsertErr);
+        }
+
         if (newVow.milestones.length > 0) {
-          await supabase.from('milestones').insert(newVow.milestones);
+          const { error: mileErr } = await supabase.from('milestones').insert(newVow.milestones);
+          if (mileErr) console.error('Supabase Milestones insert error:', mileErr);
         }
         if (newVow.witnesses.length > 0) {
-          await supabase.from('witnesses').insert(newVow.witnesses);
+          const { error: witErr } = await supabase.from('witnesses').insert(newVow.witnesses);
+          if (witErr) console.error('Supabase Witnesses insert error:', witErr);
         }
       } catch (e) {
         console.error('Failed to save vow to Supabase:', e);
@@ -156,7 +200,10 @@ export const SajjaProvider = ({ children }) => {
 
     if (isSupabaseConfigured() && user) {
       try {
-        await supabase.from('check_ins').upsert(newCheckIn, { onConflict: 'vow_id,check_date' });
+        const { error: checkInUpsertErr } = await supabase.from('check_ins').upsert(newCheckIn, { onConflict: 'vow_id,check_date' });
+        if (checkInUpsertErr) {
+          console.error('Supabase check-in upsert error:', checkInUpsertErr);
+        }
       } catch (e) {
         console.error('Failed to sync check-in to Supabase:', e);
       }

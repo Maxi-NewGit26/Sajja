@@ -129,16 +129,6 @@ export const ProfilePage = ({ onOpenSupabaseConfig }) => {
               <p className="text-xs text-ink-faded mt-1">{user?.email}</p>
             </div>
           </div>
-
-          <div className="flex items-center gap-3">
-            <button
-              onClick={onOpenSupabaseConfig}
-              className="px-3.5 py-2 rounded-xl bg-parchment-100 border border-gold-600/40 text-ink text-xs font-serif-thai font-semibold hover:bg-parchment-200 flex items-center gap-1.5"
-            >
-              <Database className="w-4 h-4 text-gold-700" />
-              <span>ตั้งค่า Supabase</span>
-            </button>
-          </div>
         </div>
       </div>
 

@@ -92,22 +92,6 @@ export const Navbar = ({ activeTab, setActiveTab, onOpenSupabaseConfig }) => {
           >
             <User className="w-5 h-5" />
           </button>
-
-          {/* Supabase Status / Setup button */}
-          <button
-            onClick={onOpenSupabaseConfig}
-            className={`p-2 rounded-lg border text-xs flex items-center gap-1 ${
-              isDemoMode 
-                ? 'bg-amber-100 border-amber-400 text-amber-800' 
-                : 'bg-emerald-100 border-emerald-400 text-emerald-800'
-            }`}
-            title={isDemoMode ? "โหมดสาธิต (เปิดตั้งค่า Supabase)" : "เชื่อมต่อ Supabase แล้ว"}
-          >
-            <Database className="w-4 h-4" />
-            <span className="hidden lg:inline text-[11px] font-semibold">
-              {isDemoMode ? 'Demo Mode' : 'Supabase Live'}
-            </span>
-          </button>
         </div>
 
       </div>

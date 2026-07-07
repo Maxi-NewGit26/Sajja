@@ -141,17 +141,6 @@ export const AuthPage = ({ onContinueAsGuest, onOpenSupabaseConfig }) => {
           </button>
         </div>
 
-        {/* Database Config only */}
-        <div className="mt-6 pt-4 border-t border-gold-600/20 text-center">
-          <button
-            type="button"
-            onClick={onOpenSupabaseConfig}
-            className="text-[11px] text-ink-faded hover:text-crimson-800 flex items-center justify-center gap-1 mx-auto"
-          >
-            <Database className="w-3 h-3" />
-            <span>ตั้งค่า Supabase URL & Anon Key</span>
-          </button>
-        </div>
       </div>
     </div>
   );

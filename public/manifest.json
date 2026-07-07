@@ -1,0 +1,24 @@
+{
+  "name": "สัจจะ — การรักษาคำมั่นสัญญาต่อตนเอง",
+  "short_name": "สัจจะ",
+  "description": "แอปพลิเคชันตั้งคำสัตย์และรักษาความตั้งใจกับตัวเอง ด้วยความซื่อตรงและพิธีการ",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#F8F4E8",
+  "theme_color": "#7A1C1C",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

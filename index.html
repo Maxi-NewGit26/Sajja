@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="th">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/png" href="/icon-192.png" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <meta name="theme-color" content="#7A1C1C" />
+    <meta name="description" content="สัจจะ — แอปพลิเคชันตั้งคำสัตย์และรักษาความตั้งใจกับตัวเอง ด้วยความซื่อตรงและพิธีการ" />
+    <link rel="manifest" href="/manifest.json" />
+    <link rel="apple-touch-icon" href="/icon-192.png" />
+    
+    <!-- Google Fonts: Noto Serif Thai & IBM Plex Sans Thai -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@300;400;500;600;700&family=Noto+Serif+Thai:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    
+    <title>สัจจะ — การรักษาคำมั่นสัญญาต่อตนเอง</title>
+  </head>
+  <body class="bg-parchment-100 text-ink antialiased selection:bg-crimson-700 selection:text-parchment-100 font-sans min-h-screen overflow-x-hidden">
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('/sw.js')
+            .then(reg => console.log('Service Worker Registered'))
+            .catch(err => console.log('Service Worker Registration Failed:', err));
+        });
+      }
+    </script>
+  </body>
+</html>
